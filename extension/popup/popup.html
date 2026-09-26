@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Map Overlays</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon32.png" alt="" width="20" height="20">
+    <h1>Map Overlays</h1>
+    <label class="switch" title="Turn all overlays on/off (Alt+Shift+M)">
+      <input type="checkbox" id="enabled"><span></span>
+    </label>
+  </header>
+
+  <p id="status" class="status">Checking this page…</p>
+
+  <main id="overlays">
+    <section class="overlay" data-overlay="wmata">
+      <div class="row head">
+        <div>
+          <h2>WMATA Metro</h2>
+          <p class="hint">Washington DC Metrorail lines &amp; stations</p>
+        </div>
+        <label class="switch"><input type="checkbox" data-key="enabled"><span></span></label>
+      </div>
+      <div class="options">
+        <div class="lines" id="wmata-lines"></div>
+        <label class="row check"><input type="checkbox" data-key="stations"> Show stations</label>
+        <label class="row check"><input type="checkbox" data-key="labels"> Show station names <span class="hint">(zoomed in)</span></label>
+        <label class="row range">Opacity <input type="range" min="0.2" max="1" step="0.05" data-key="opacity"></label>
+      </div>
+    </section>
+
+    <section class="overlay" data-overlay="bus">
+      <div class="row head">
+        <div>
+          <h2>WMATA Metrobus</h2>
+          <p class="hint">All bus routes &amp; stops · click a stop for its routes</p>
+        </div>
+        <label class="switch"><input type="checkbox" data-key="enabled"><span></span></label>
+      </div>
+      <div class="options">
+        <label class="row check"><input type="checkbox" data-key="lines"> Show routes</label>
+        <label class="row check"><input type="checkbox" data-key="stops"> Show stops from zoom
+          <select data-key="stopZoom" aria-label="Minimum zoom for bus stops">
+            <option>12</option><option>13</option><option>14</option><option>15</option>
+            <option>16</option><option>17</option><option>18</option>
+          </select>
+        </label>
+        <label class="row range">Opacity <input type="range" min="0.2" max="1" step="0.05" data-key="opacity"></label>
+      </div>
+    </section>
+  </main>
+
+  <footer>Hover a Metro station or click a bus stop on the map for details.</footer>
+  <script src="../src/settings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

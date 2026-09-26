@@ -1,0 +1,74 @@
+{
+  "manifest_version": 3,
+  "name": "Map Overlays for Google Maps",
+  "short_name": "Map Overlays",
+  "version": "1.1.0",
+  "description": "Finds Google Maps widgets on any website and draws helpful overlays on them, like Washington DC's WMATA Metro lines and Metrobus routes and stops.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_title": "Map Overlays",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "commands": {
+    "toggle-overlays": {
+      "suggested_key": {
+        "default": "Alt+Shift+M"
+      },
+      "description": "Turn all map overlays on/off"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/page/canvas-layer.js",
+        "src/page/metro.js",
+        "src/page/bus.js",
+        "src/page/core.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/settings.js",
+        "src/bridge.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "data/*.json"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "use_dynamic_url": true
+    }
+  ]
+}
