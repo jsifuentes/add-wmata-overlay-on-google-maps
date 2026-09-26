@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "WMATA Overlay for Map Widgets",
   "short_name": "WMATA Overlay",
-  "version": "1.1.0",
-  "description": "Draws Washington DC's WMATA Metro lines and Metrobus routes and stops on Google Maps and OpenStreetMap (Leaflet) map widgets on any website.",
+  "version": "1.2.0",
+  "description": "Draws DC's WMATA Metro lines and Metrobus routes and stops on Google Maps and OpenStreetMap (Leaflet) maps on any website.",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

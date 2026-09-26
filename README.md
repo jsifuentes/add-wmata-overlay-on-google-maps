@@ -9,8 +9,9 @@ Toggle overlays, lines, and options from the toolbar popup. `Alt+Shift+M` toggle
 
 Leaflet maps are supported when the page exposes Leaflet as `window.L` (e.g. Craigslist's map view). Does not work with Mapbox GL / MapLibre maps or `google.com/maps/embed` iframes.
 
-<img height="400" src=".github/images/extension.webp" />
-<img height="400" src=".github/images/sample.webp" />
+<img height="400" src=".github/images/extension.jpg" />
+<img height="400" src=".github/images/craigslist.jpg" />
+<img height="400" src=".github/images/zillow.jpg" />
 
 ## Local setup
 
@@ -24,7 +25,7 @@ Or run `./launch-chrome.sh` (Chrome for Testing, profile in `./chrome/`) or `./l
 
 ## Publishing
 
-`./package-chrome.sh` builds `dist/wmata-overlay-chrome-<version>.zip` for the Chrome Web Store. Bump `version` in `extension/manifest.json` before each upload.
+`./package-chrome.sh` builds `dist/wmata-overlay-chrome-<version>.zip` for the Chrome Web Store; `./package-firefox.sh` builds `dist/wmata-overlay-firefox-<version>.zip` for addons.mozilla.org (and runs `web-ext lint`). Bump `version` in `extension/manifest.json` before each upload.
 
 ## Data
 
