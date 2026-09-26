@@ -40,11 +40,18 @@
   const wA = world(REF_A[1], REF_A[0]);
   const wB = world(REF_B[1], REF_B[0]);
 
+  // Canvas layers on each map, and the layer (if any) asking the others to fade out.
+  const layersByMap = new WeakMap(); // map -> Set of layer handles
+  const dimmerByMap = new WeakMap(); // map -> layer handle
+  const DIM = 0.3;
+
   /**
    * Creates a full-viewport canvas in the map's overlayLayer pane and redraws it
    * whenever the map moves. `render(ctx, view)` gets a view with:
    *   W, H, zoom, px([wx, wy]) -> [x, y] container pixels, toWorld (inverse), left/top (container
    *   origin in pane coordinates, for positioning DOM in other panes).
+   * `layer.dimOthers(on)` fades every other canvas layer on the same map (e.g. while a
+   * route is highlighted).
    */
   function createCanvasLayer({ gm, map, className, zIndex = 0, opacity = 1, render, onAdd, onRemove, events = {} }) {
     const overlay = new gm.OverlayView();
@@ -53,6 +60,7 @@
     let frame = 0;
     let listeners = [];
     let view = null;
+    let dimmed = false;
     const dpr = () => window.devicePixelRatio || 1;
 
     function computeView() {
@@ -114,7 +122,10 @@
     overlay.onAdd = function () {
       canvas = document.createElement('canvas');
       canvas.className = className;
-      canvas.style.cssText = `position:absolute;pointer-events:none;z-index:${zIndex};opacity:${opacity};`;
+      canvas.style.cssText = `position:absolute;pointer-events:none;z-index:${zIndex};`;
+      const dimmer = dimmerByMap.get(map);
+      dimmed = !!dimmer && dimmer !== handle;
+      applyOpacity();
       ctx = canvas.getContext('2d');
       const panes = this.getPanes();
       panes.overlayLayer.appendChild(canvas);
@@ -124,6 +135,7 @@
     };
     overlay.draw = draw;
     overlay.onRemove = function () {
+      handle.dimOthers(false);
       listeners.forEach((l) => l.remove());
       listeners = [];
       cancelAnimationFrame(frame);
@@ -131,9 +143,12 @@
       canvas = ctx = view = null;
       onRemove?.();
     };
-    overlay.setMap(map);
+    function applyOpacity() {
+      if (canvas) canvas.style.opacity = String(dimmed ? opacity * DIM : opacity);
+    }
 
-    return {
+    if (!layersByMap.has(map)) layersByMap.set(map, new Set());
+    const handle = {
       schedule,
       // Last rendered view (null when hidden). Use for hit testing.
       get view() {
@@ -147,12 +162,27 @@
       },
       setOpacity(o) {
         opacity = o;
-        if (canvas) canvas.style.opacity = String(o);
+        applyOpacity();
+      },
+      dimOthers(on) {
+        const cur = dimmerByMap.get(map);
+        if (on ? cur === handle : cur !== handle) return;
+        if (on) dimmerByMap.set(map, handle);
+        else dimmerByMap.delete(map);
+        for (const l of layersByMap.get(map)) if (l !== handle) l._setDimmed(on);
+      },
+      _setDimmed(on) {
+        dimmed = on;
+        applyOpacity();
       },
       destroy() {
         overlay.setMap(null);
+        layersByMap.get(map).delete(handle);
       },
     };
+    layersByMap.get(map).add(handle);
+    overlay.setMap(map);
+    return handle;
   }
 
   // ---------------------------------------------------------------------------

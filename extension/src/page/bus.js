@@ -125,7 +125,7 @@
         const hlColor = highlight !== null && routes[highlight].color;
         for (const { s, x, y, r: rad } of screenStops) {
           const served = highlight === null || s.routes.includes(highlight);
-          ctx.globalAlpha = served ? 1 : 0.35;
+          ctx.globalAlpha = served ? 1 : 0.3;
           ctx.beginPath();
           ctx.arc(x, y, s === hover ? rad + 1.5 : rad, 0, Math.PI * 2);
           ctx.fillStyle = '#fff';
@@ -197,7 +197,10 @@
     function openCard(stop) {
       closeCard(false);
       selected = stop;
-      if (highlight !== null && !stop.routes.includes(highlight)) highlight = null;
+      if (highlight !== null && !stop.routes.includes(highlight)) {
+        highlight = null;
+        layer.dimOthers(false);
+      }
       if (!floatPane) return;
       const host = document.createElement('div');
       host.className = 'gmo-bus-card';
@@ -227,6 +230,7 @@
         b.querySelector('.long').textContent = r.name;
         b.addEventListener('click', () => {
           highlight = highlight === ri ? null : ri;
+          layer.dimOthers(highlight !== null);
           syncCard();
           layer.schedule();
         });
@@ -262,6 +266,7 @@
       card = null;
       selected = null;
       highlight = null;
+      layer.dimOthers(false);
       if (redraw) layer.schedule();
     }
 
