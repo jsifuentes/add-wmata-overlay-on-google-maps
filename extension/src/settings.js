@@ -21,6 +21,11 @@
         stopZoom: 15,
         opacity: 0.85,
       },
+      cabi: {
+        enabled: false,
+        minZoom: 13,
+        opacity: 0.9,
+      },
     },
   };
 

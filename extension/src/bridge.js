@@ -6,7 +6,7 @@
 // Bridge -> page events:  gmo:settings <json>, gmo:data <json>
 (() => {
   let mapCount = 0;
-  const DATASETS = { wmata: 'data/wmata.json', bus: 'data/bus.json' };
+  const DATASETS = { wmata: 'data/wmata.json', bus: 'data/bus.json', cabi: 'data/cabi.json' };
   const loading = {};
 
   const send = (type, payload) =>
