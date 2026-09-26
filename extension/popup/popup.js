@@ -5,7 +5,7 @@ const LINES = [
 
 let settings;
 
-// Debounced: chrome.storage.sync has per-minute write quotas (slider drags).
+// Debounced: storage.sync has per-minute write quotas (slider drags).
 let saveTimer = 0;
 const save = () => {
   clearTimeout(saveTimer);
@@ -69,10 +69,10 @@ function build() {
 
 async function status() {
   const el = document.getElementById('status');
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const [tab] = await GMO.ext.tabs.query({ active: true, currentWindow: true });
   let res = null;
   try {
-    res = await chrome.tabs.sendMessage(tab.id, { type: 'gmo:status' });
+    res = await GMO.ext.tabs.sendMessage(tab.id, { type: 'gmo:status' });
   } catch {}
   if (res?.count) {
     el.textContent = `${res.count} Google Map${res.count > 1 ? 's' : ''} found on this page.`;

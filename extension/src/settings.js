@@ -1,6 +1,9 @@
 // Shared settings helpers. Loaded by the bridge content script, the popup and the
-// service worker (all extension contexts with chrome.storage access).
+// background script (all extension contexts with storage access).
 (() => {
+  // Firefox exposes promise-based `browser`; Chrome only `chrome` (promise-based in MV3).
+  const ext = globalThis.browser ?? globalThis.chrome;
+
   const DEFAULTS = {
     enabled: true,
     overlays: {
@@ -31,13 +34,13 @@
   }
 
   async function load() {
-    const { settings } = await chrome.storage.sync.get('settings');
+    const { settings } = await ext.storage.sync.get('settings');
     return merge(DEFAULTS, settings || {});
   }
 
   function save(settings) {
-    return chrome.storage.sync.set({ settings });
+    return ext.storage.sync.set({ settings });
   }
 
-  globalThis.GMO = { DEFAULTS, merge, load, save };
+  globalThis.GMO = { ext, DEFAULTS, merge, load, save };
 })();

@@ -1,5 +1,5 @@
 // Isolated-world content script. Relays settings and overlay data between the
-// extension (chrome.* APIs) and the page-world scripts (src/page/*), which are the
+// extension (extension APIs) and the page-world scripts (src/page/*), which are the
 // only place that can see the page's google.maps objects.
 //
 // Page -> bridge events:  gmo:hello, gmo:need-data {ids}, gmo:status {count}
@@ -28,7 +28,7 @@
       ids = JSON.parse(e.detail).ids.filter((id) => DATASETS[id]);
     } catch {}
     for (const id of ids) {
-      loading[id] ||= fetch(chrome.runtime.getURL(DATASETS[id])).then((r) => r.json());
+      loading[id] ||= fetch(GMO.ext.runtime.getURL(DATASETS[id])).then((r) => r.json());
       loading[id].then((d) => send('gmo:data', { [id]: d }));
     }
   });
@@ -39,12 +39,12 @@
     } catch {}
   });
 
-  chrome.storage.onChanged.addListener((changes, area) => {
+  GMO.ext.storage.onChanged.addListener((changes, area) => {
     if (area === 'sync' && changes.settings) pushSettings();
   });
 
   // Popup asks every frame; only frames that found a map answer.
-  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  GMO.ext.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg?.type === 'gmo:status' && mapCount > 0) {
       sendResponse({ count: mapCount, url: location.href });
     }
