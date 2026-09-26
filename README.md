@@ -9,6 +9,9 @@ Toggle overlays, lines, and options from the toolbar popup. `Alt+Shift+M` toggle
 
 Does not work with non-Google maps (Mapbox, Leaflet) or `google.com/maps/embed` iframes.
 
+<img height="400" src=".github/images/extension.webp" />
+<img height="400" src=".github/images/sample.webp" />
+
 ## Local setup
 
 Chrome:
