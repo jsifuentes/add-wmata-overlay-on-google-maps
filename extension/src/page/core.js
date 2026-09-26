@@ -10,8 +10,8 @@
 //      page touches them (pans, reads bounds, adds listeners, ...).
 // 2. Attaches the overlays enabled in the extension settings to every found map.
 //
-// Maps that aren't JS API maps (google.com/maps itself, see google-maps-site.js)
-// are handed over through window.__gmo.addMap / removeMap.
+// Maps that aren't JS API maps (google.com/maps itself, see google-maps-site.js;
+// Leaflet, see leaflet.js) are handed over through window.__gmo.addMap / removeMap.
 (() => {
   if (window.__gmoPageInstalled) return;
   window.__gmoPageInstalled = true;

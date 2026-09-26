@@ -1,13 +1,13 @@
-# WMATA overlay for Google Maps
+# WMATA overlay for map widgets
 
-Browser extension (Chrome, Firefox) that detects Google Maps JS API maps on any website, and google.com/maps itself, and draws overlays on them:
+Browser extension (Chrome, Firefox) that detects Google Maps JS API maps and Leaflet (OpenStreetMap) maps on any website, and google.com/maps itself, and draws overlays on them:
 
 - **Metro**: all six lines in WMATA colors, shared track side by side, all stations. Hover a station for its lines.
 - **Metrobus** (off by default): all routes, colored by service tier. Stops appear from a configurable zoom level (default 15). Click a stop to list its routes; click a route to highlight it.
 
 Toggle overlays, lines, and options from the toolbar popup. `Alt+Shift+M` toggles everything.
 
-Does not work with non-Google maps (Mapbox, Leaflet) or `google.com/maps/embed` iframes.
+Leaflet maps are supported when the page exposes Leaflet as `window.L` (e.g. Craigslist's map view). Does not work with Mapbox GL / MapLibre maps or `google.com/maps/embed` iframes.
 
 <img height="400" src=".github/images/extension.webp" />
 <img height="400" src=".github/images/sample.webp" />

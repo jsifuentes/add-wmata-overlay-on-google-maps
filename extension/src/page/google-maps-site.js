@@ -11,7 +11,7 @@
   if (!/^www\.google\.[a-z.]+$/.test(location.hostname) || !location.pathname.startsWith('/maps')) return;
   window.__gmoSiteInstalled = true;
 
-  const { world } = window.__gmo.util;
+  const { world, LatLng, worldToLatLng, StandInOverlayView, StandInMap } = window.__gmo.util;
 
   // ---------------------------------------------------------------------------
   // Camera messages
@@ -163,34 +163,7 @@
   `;
   let styled = false;
 
-  class LatLng {
-    constructor(lat, lng) {
-      this._lat = lat;
-      this._lng = lng;
-    }
-    lat() {
-      return this._lat;
-    }
-    lng() {
-      return this._lng;
-    }
-  }
-
-  class OverlayView {
-    setMap(map) {
-      this._map?._removeOverlay(this);
-      this._map = map || null;
-      map?._addOverlay(this);
-    }
-    getMap() {
-      return this._map || null;
-    }
-    getPanes() {
-      return this._map?._panes || null;
-    }
-    getProjection() {
-      return this._map?._projection() || null;
-    }
+  class OverlayView extends StandInOverlayView {
     static preventMapHitsAndGesturesFrom(el) {
       for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick', 'wheel', 'touchstart']) {
         el.addEventListener(type, (e) => e.stopPropagation());
@@ -200,13 +173,11 @@
 
   const gm = { LatLng, OverlayView };
 
-  class SiteMap {
+  class SiteMap extends StandInMap {
     constructor(canvas) {
+      super();
       this.canvas = canvas;
       this.cam = null;
-      this.options = {};
-      this.listeners = {};
-      this.overlays = new Set();
       this.registered = false;
 
       this.layer = document.createElement('div');
@@ -311,26 +282,6 @@
       return { fromLatLngToContainerPixel: toPixel, fromLatLngToDivPixel: toPixel };
     }
 
-    _trigger(name, e) {
-      for (const fn of [...(this.listeners[name] || [])]) {
-        try {
-          fn(e);
-        } catch (err) {
-          console.warn('[WMATA Overlay]', err);
-        }
-      }
-    }
-
-    _addOverlay(ov) {
-      this.overlays.add(ov);
-      ov.onAdd?.();
-      ov.draw?.();
-    }
-
-    _removeOverlay(ov) {
-      if (this.overlays.delete(ov)) ov.onRemove?.();
-    }
-
     _syncCursor() {
       this.container?.classList.toggle('gmo-site-pointer', this.options.draggableCursor === 'pointer');
     }
@@ -348,17 +299,6 @@
     getZoom() {
       return this.cam?.zoom;
     }
-    get(key) {
-      return this.options[key];
-    }
-    setOptions(opts) {
-      Object.assign(this.options, opts);
-      this._syncCursor();
-    }
-    addListener(name, fn) {
-      (this.listeners[name] ||= new Set()).add(fn);
-      return { remove: () => this.listeners[name]?.delete(fn) };
-    }
 
     destroy() {
       window.__gmo.removeMap?.(this);
@@ -369,12 +309,5 @@
       this.container?.classList.remove('gmo-site-pointer');
       this.layer.remove();
     }
-  }
-
-  function worldToLatLng(wx, wy) {
-    const lng = (wx / 256) * 360 - 180;
-    const n = Math.PI - (2 * Math.PI * wy) / 256;
-    const lat = (180 / Math.PI) * Math.atan(Math.sinh(n));
-    return new LatLng(lat, lng);
   }
 })();

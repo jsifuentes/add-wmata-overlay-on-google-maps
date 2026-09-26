@@ -155,5 +155,92 @@
     };
   }
 
-  Object.assign(gmo.util, { world, decodePolyline, createCanvasLayer, FONT });
+  // ---------------------------------------------------------------------------
+  // Stand-ins for the parts of google.maps.LatLng / OverlayView / Map that
+  // createCanvasLayer and the overlays use, for maps that aren't Maps JS API maps
+  // (google-maps-site.js, leaflet.js). A map subclass provides getDiv(), _panes and
+  // _projection(), and reports google.maps-style events through _trigger().
+  // ---------------------------------------------------------------------------
+  class LatLng {
+    constructor(lat, lng) {
+      this._lat = lat;
+      this._lng = lng;
+    }
+    lat() {
+      return this._lat;
+    }
+    lng() {
+      return this._lng;
+    }
+  }
+
+  const worldToLatLng = (wx, wy) => {
+    const lng = (wx / 256) * 360 - 180;
+    const n = Math.PI - (2 * Math.PI * wy) / 256;
+    return new LatLng((180 / Math.PI) * Math.atan(Math.sinh(n)), lng);
+  };
+
+  class StandInOverlayView {
+    setMap(map) {
+      this._map?._removeOverlay(this);
+      this._map = map || null;
+      map?._addOverlay(this);
+    }
+    getMap() {
+      return this._map || null;
+    }
+    getPanes() {
+      return this._map?._panes || null;
+    }
+    getProjection() {
+      return this._map?._projection() || null;
+    }
+  }
+
+  class StandInMap {
+    constructor() {
+      this.options = {};
+      this.listeners = {};
+      this.overlays = new Set();
+    }
+    _trigger(name, e) {
+      for (const fn of [...(this.listeners[name] || [])]) {
+        try {
+          fn(e);
+        } catch (err) {
+          console.warn('[WMATA Overlay]', err);
+        }
+      }
+    }
+    _addOverlay(ov) {
+      this.overlays.add(ov);
+      ov.onAdd?.();
+      ov.draw?.();
+    }
+    _removeOverlay(ov) {
+      if (this.overlays.delete(ov)) ov.onRemove?.();
+    }
+    _syncCursor() {}
+    getTilt() {
+      return 0;
+    }
+    getHeading() {
+      return 0;
+    }
+    get(key) {
+      return this.options[key];
+    }
+    setOptions(opts) {
+      Object.assign(this.options, opts);
+      this._syncCursor();
+    }
+    addListener(name, fn) {
+      (this.listeners[name] ||= new Set()).add(fn);
+      return { remove: () => this.listeners[name]?.delete(fn) };
+    }
+  }
+
+  Object.assign(gmo.util, {
+    world, decodePolyline, createCanvasLayer, FONT, LatLng, worldToLatLng, StandInOverlayView, StandInMap,
+  });
 })();

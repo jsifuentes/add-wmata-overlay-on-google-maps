@@ -75,11 +75,11 @@ async function status() {
     res = await GMO.ext.tabs.sendMessage(tab.id, { type: 'gmo:status' });
   } catch {}
   if (res?.count) {
-    el.textContent = `${res.count} Google Map${res.count > 1 ? 's' : ''} found on this page.`;
+    el.textContent = `${res.count} map${res.count > 1 ? 's' : ''} found on this page.`;
     el.classList.add('found');
   } else {
     el.textContent = /^https?:/.test(tab?.url || '')
-      ? 'No Google Map found on this page (yet).'
+      ? 'No supported map found on this page (yet).'
       : 'Overlays can’t run on this page.';
   }
 }
