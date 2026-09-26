@@ -1,6 +1,6 @@
 # WMATA overlay for Google Maps
 
-Browser extension (Chrome, Firefox) that detects Google Maps JS API maps on any website and draws overlays on them:
+Browser extension (Chrome, Firefox) that detects Google Maps JS API maps on any website, and google.com/maps itself, and draws overlays on them:
 
 - **Metro**: all six lines in WMATA colors, shared track side by side, all stations. Hover a station for its lines.
 - **Metrobus** (off by default): all routes, colored by service tier. Stops appear from a configurable zoom level (default 15). Click a stop to list its routes; click a route to highlight it.
@@ -21,6 +21,10 @@ Firefox (142+):
 1. `about:debugging#/runtime/this-firefox` → Load Temporary Add-on → `extension/manifest.json`.
 
 Or run `./launch-chrome.sh` (Chrome for Testing, profile in `./chrome/`) or `./launch-firefox.sh` (web-ext, profile in `./firefox/`).
+
+## Publishing
+
+`./package-chrome.sh` builds `dist/wmata-overlay-chrome-<version>.zip` for the Chrome Web Store. Bump `version` in `extension/manifest.json` before each upload.
 
 ## Data
 

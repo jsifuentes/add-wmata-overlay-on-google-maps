@@ -9,11 +9,14 @@
 //      created before we got hold of the constructor are caught the next time the
 //      page touches them (pans, reads bounds, adds listeners, ...).
 // 2. Attaches the overlays enabled in the extension settings to every found map.
+//
+// Maps that aren't JS API maps (google.com/maps itself, see google-maps-site.js)
+// are handed over through window.__gmo.addMap / removeMap.
 (() => {
   if (window.__gmoPageInstalled) return;
   window.__gmoPageInstalled = true;
 
-  const maps = new Set();
+  const maps = new Map(); // map -> the google.maps-like namespace it belongs to
   const attached = new Map(); // map -> { [overlayId]: overlay instance }
   let settings = null;
   const data = {}; // overlay id -> dataset
@@ -42,10 +45,21 @@
   // ---------------------------------------------------------------------------
   function register(map) {
     if (!RealMap || maps.has(map) || !(map instanceof RealMap)) return;
-    maps.add(map);
+    addMap(map, g.maps);
+  }
+
+  function addMap(map, gm) {
+    if (maps.has(map)) return;
+    maps.set(map, gm);
     emit('gmo:status', { count: maps.size });
     // Defer: we may be inside the page's constructor/method call.
     queueMicrotask(sync);
+  }
+
+  function removeMap(map) {
+    if (!maps.delete(map)) return;
+    detachAll(map);
+    emit('gmo:status', { count: maps.size });
   }
 
   function trap(obj, key, transform, onValue) {
@@ -164,16 +178,12 @@
 
   // Drop maps whose element has left the document (SPA navigation etc).
   setInterval(() => {
-    for (const map of maps) {
+    for (const map of maps.keys()) {
       let div;
       try {
         div = map.getDiv();
       } catch {}
-      if (!div || !div.isConnected) {
-        detachAll(map);
-        maps.delete(map);
-        emit('gmo:status', { count: maps.size });
-      }
+      if (!div || !div.isConnected) removeMap(map);
     }
   }, 3000);
 
@@ -181,6 +191,7 @@
   // Overlay management
   // ---------------------------------------------------------------------------
   const OVERLAYS = window.__gmo.overlays;
+  Object.assign(window.__gmo, { addMap, removeMap });
 
   function detachAll(map) {
     const inst = attached.get(map);
@@ -197,7 +208,7 @@
       missing.forEach((id) => requested.add(id));
       emit('gmo:need-data', { ids: missing });
     }
-    for (const map of maps) {
+    for (const [map, gm] of maps) {
       const inst = attached.get(map) || {};
       for (const id of Object.keys(OVERLAYS)) {
         const cfg = settings.overlays?.[id];
@@ -205,9 +216,9 @@
           if (inst[id]) inst[id].update(cfg);
           else if (data[id]) {
             try {
-              inst[id] = OVERLAYS[id]({ gm: g.maps, map, data: data[id], cfg });
+              inst[id] = OVERLAYS[id]({ gm, map, data: data[id], cfg });
             } catch (err) {
-              console.warn('[Map Overlays] could not attach', id, err);
+              console.warn('[WMATA Overlay] could not attach', id, err);
             }
           }
         } else if (inst[id]) {
